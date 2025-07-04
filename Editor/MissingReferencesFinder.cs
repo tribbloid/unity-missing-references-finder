@@ -86,6 +86,37 @@ namespace Editor
             showFinishDialog(wasCancelled, count);
         }
 
+        [MenuItem("Tools/Find Missing References/In all prefabs in build", false, 53)]
+        public static void FindMissingReferencesInAllPrefabsInBuild()
+        {
+            showInitialProgressBar("all prefabs in build");
+            clearConsole();
+            var prefabPaths = AssetDatabase.FindAssets("t:prefab").Select(AssetDatabase.GUIDToAssetPath).ToArray();
+
+            var wasCancelled = false;
+            var totalMissingCount = 0;
+
+            for (var i = 0; i < prefabPaths.Length; i++)
+            {
+                var prefabPath = prefabPaths[i];
+                if (EditorUtility.DisplayCancelableProgressBar("Searching missing references in prefabs", prefabPath,
+                        (float)i / prefabPaths.Length))
+                {
+                    wasCancelled = true;
+                    break;
+                }
+
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+                if (prefab != null)
+                {
+                    var missingInPrefab = findMissingReferences(prefabPath, prefab, true);
+                    totalMissingCount += missingInPrefab;
+                }
+            }
+
+            showFinishDialog(wasCancelled, totalMissingCount);
+        }
+
         /*[MenuItem("Tools/Find Missing References/In all scenes in project", false, 52)]
     public static void FindMissingReferencesInAllScenes() {
         var scenes = EditorBuildSettings.scenes;
@@ -99,7 +130,7 @@ namespace Editor
         showFinishDialog(!finished);
     }*/
 
-        [MenuItem("Tools/Find Missing References/In assets", false, 52)]
+        [MenuItem("Tools/Find Missing References/In assets", false, 54)]
         public static void FindMissingReferencesInAssets()
         {
             showInitialProgressBar("all assets");
@@ -116,7 +147,7 @@ namespace Editor
             showFinishDialog(wasCancelled, count);
         }
 
-        [MenuItem("Tools/Find Missing References/Everywhere", false, 53)]
+        [MenuItem("Tools/Find Missing References/Everywhere", false, 60)]
         public static void FindMissingReferencesEverywhere()
         {
             var currentScenePath = SceneManager.GetActiveScene().path;
