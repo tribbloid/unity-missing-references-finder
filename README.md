@@ -39,6 +39,7 @@ Alternatively, you can manually remove the version lock the Package Manager crea
 Open the Tools menu and select `Find Missing References`, then select the context in which you want to search:
 - The current scene.
 - All scenes added to the build settings.
+- All prefabs.
 - All assets.
 - Everywhere (all scenes added to the build settings + all assets).
 

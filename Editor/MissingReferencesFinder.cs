@@ -104,7 +104,28 @@ public class MissingReferencesFinder : MonoBehaviour {
         showFinishDialog(!finished);
     }*/
 
-    [MenuItem("Tools/Find Missing References/In assets", false, 52)]
+    [MenuItem("Tools/Find Missing References/In all prefabs", false, 53)]
+    public static void FindMissingReferencesInAllPrefabs() {
+        var window = MissingReferencesResultsWindow.ShowSearchWindow();
+        var prefabPaths = AssetDatabase.FindAssets("t:prefab")
+            .Select(AssetDatabase.GUIDToAssetPath)
+            .ToArray();
+        window.StartSearch(FindInAllPrefabsCoroutine(prefabPaths, window));
+    }
+
+    private static IEnumerator FindInAllPrefabsCoroutine(string[] paths, MissingReferencesResultsWindow window) {
+        for (var i = 0; i < paths.Length; i++) {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(paths[i]);
+            if (prefab == null || !prefab) continue;
+
+            window.UpdateProgress(i / (float)paths.Length, $"Searching in prefabs: {paths[i]}");
+            findMissingReferences(paths[i], prefab, true, window);
+
+            if (i % 10 == 0) yield return null;
+        }
+    }
+
+    [MenuItem("Tools/Find Missing References/In assets", false, 54)]
     public static void FindMissingReferencesInAssets() {
         var window = MissingReferencesResultsWindow.ShowSearchWindow();
         var allAssetPaths = AssetDatabase.GetAllAssetPaths()
@@ -125,7 +146,7 @@ public class MissingReferencesFinder : MonoBehaviour {
         }
     }
 
-    [MenuItem("Tools/Find Missing References/Everywhere", false, 53)]
+    [MenuItem("Tools/Find Missing References/Everywhere", false, 60)]
     public static void FindMissingReferencesEverywhere() {
         var currentScenePath = SceneManager.GetActiveScene().path;
 
